@@ -1,9 +1,12 @@
 (function() {
-
   describe('Results', function() {
-    var i, subject, subjects, test, _fn, _len, _len2, _results;
+    var i, subject, subjects, _fn, _i, _len, _len2, _results;
     beforeEach(function() {
-      return this.app = new App;
+      this.app = new App;
+      $('ul#results').remove();
+      $('body').append('<ul id="results"></ul>');
+      $('ul#groups').remove();
+      return $('body').append('<ul id="groups"><li id="match_1"><ol></ol></li></ul>');
     });
     subjects = [
       {
@@ -15,14 +18,21 @@
         ],
         'output': '<span>a</span>'
       }, {
-        'regex': 'a(.*)c',
+        'regex': 'a$',
         'test_strings': [
           {
-            'string': 'abc',
-            'matches': ['b']
+            'string': 'asdfja'
           }
         ],
-        'output': '<span>abc</span>'
+        'output': 'asdfj<span>a</span>'
+      }, {
+        'regex': '"$',
+        'test_strings': [
+          {
+            'string': '"hello"'
+          }
+        ],
+        'output': '"hello<span>"</span>'
       }, {
         'regex': 'a(.*)c',
         'test_strings': [
@@ -51,14 +61,15 @@
         ],
         'output': '<span>https</span>://github.com'
       }, {
-        'regex': '^(https?)://((?:[A-Z0-9]*\.?)*)((?:\/?[A-Z0-9])*)',
+        'regex': '^(https?)://((?:[A-Z0-9]*\\.?)*)((?:\\/?[A-Z0-9])*)',
+        'option': 'i',
         'test_strings': [
           {
             'string': 'https://github.com/jonmagic/scriptular',
             'matches': ['https', 'github.com', '/jonmagic/scriptular']
           }, {
             'string': 'http://scriptular.com',
-            'matches': ['https', 'github.com', '/jonmagic/scriptular']
+            'matches': ['http', 'scriptular.com']
           }, {
             'string': 'http://www.google.com'
           }, {
@@ -91,9 +102,8 @@
           }
           return _results;
         })();
-        spyOn(this.app.results, 'drawResult');
         this.app.results.compile();
-        return expect(this.app.results.drawResult).toHaveBeenCalledWith(subject['output']);
+        return expect($('ul#results li').html()).toEqual(subject['output']);
       });
     };
     for (i = 0, _len = subjects.length; i < _len; i++) {
@@ -101,36 +111,37 @@
       _fn(subject);
     }
     _results = [];
-    for (i = 0, _len2 = subjects.length; i < _len2; i++) {
-      subject = subjects[i];
-      _results.push((function() {
-        var _i, _len3, _ref, _results2;
-        _ref = subject['test_strings'];
-        _results2 = [];
-        for (_i = 0, _len3 = _ref.length; _i < _len3; _i++) {
-          test = _ref[_i];
-          _results2.push((function(subject) {
-            return it("subject " + i + " returns correct groups", function() {
-              var match, _j, _len4, _ref2, _results3;
-              if (!test['matches']) return true;
-              this.app.expression.value = this.app.expression.buildRegex(subject['regex'], subject['option']);
-              this.app.test_strings.values = test['string'];
-              spyOn(this.app.results, 'drawGroup');
-              this.app.results.compile();
+    for (_i = 0, _len2 = subjects.length; _i < _len2; _i++) {
+      subject = subjects[_i];
+      _results.push((function(subject) {
+        return it("subject " + subject['regex'] + " returns correct groups", function() {
+          var i, match, test, _j, _len3, _ref, _results2;
+          _ref = subject['test_strings'];
+          _results2 = [];
+          for (_j = 0, _len3 = _ref.length; _j < _len3; _j++) {
+            test = _ref[_j];
+            if (!test['matches']) {
+              return true;
+            }
+            this.app.expression.value = this.app.expression.buildRegex(subject['regex'], subject['option']);
+            this.app.test_strings.values = [test['string']];
+            this.app.results.compile();
+            expect($('ul#groups ol li').length).toBe(test['matches'].length);
+            _results2.push((function() {
+              var _len4, _ref2, _results3;
               _ref2 = test['matches'];
               _results3 = [];
-              for (_j = 0, _len4 = _ref2.length; _j < _len4; _j++) {
-                match = _ref2[_j];
-                _results3.push(expect(this.app.results.drawGroup).toHaveBeenCalledWith(1, match));
+              for (i = 0, _len4 = _ref2.length; i < _len4; i++) {
+                match = _ref2[i];
+                _results3.push(expect($($('ul#groups ol li')[i]).text()).toEqual(match));
               }
               return _results3;
-            });
-          })(subject));
-        }
-        return _results2;
-      })());
+            })());
+          }
+          return _results2;
+        });
+      })(subject));
     }
     return _results;
   });
-
 }).call(this);
