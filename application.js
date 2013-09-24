@@ -124,6 +124,15 @@
       return $("#share_link").attr("href", url);
     };
 
+    /* 
+      escape function from Peter Hoffman found at
+      http://peter-hoffmann.com/2012/coffeescript-string-interpolation-with-html-escaping.html
+    */
+
+    Results.prototype.escape = function(s) {
+      return ('' + s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2F;');
+    };
+
     Results.prototype.matchResults = function(value, matches) {
       var index, length, match, string, _i, _len;
       if (!matches) return;
@@ -137,7 +146,7 @@
         if (index > -1) {
           string += value.slice(0, index);
           if (index > -1) {
-            string += "<span>" + (value.slice(index, index + length)) + "</span>";
+            string += "<span>" + (this.escape(value.slice(index, index + length))) + "</span>";
           }
           value = value.slice(length + index);
         }
@@ -188,6 +197,7 @@
     };
 
     Results.prototype.drawGroup = function(count, match) {
+      match = this.escape(match);
       return $("ul#groups li#match_" + count + " ol").append("<li>" + match + "</li>");
     };
 

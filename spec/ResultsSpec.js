@@ -104,6 +104,15 @@
           }
         ],
         'output': '<span>mono</span>lima<span>mono</span>lima'
+      }, {
+        'regex': '(<.*>)',
+        'option': '',
+        'test_strings': [
+          {
+            'string': '<li>'
+          }
+        ],
+        'output': '<span>&lt;li&gt;</span>'
       }
     ];
     _fn = function(subject) {
