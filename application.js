@@ -131,7 +131,7 @@
      */
 
     Results.prototype.escape = function(s) {
-      return ('' + s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2F;').replace(/ /g, '&nbsp;');
+      return ('' + s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g, '&#x2F;').replace(/ /g, '<span class="space">&#183;</span>').replace(/\t/g, '<span class="tab">&#8212;</span>');
     };
 
     Results.prototype.matchResults = function(value, matches) {
